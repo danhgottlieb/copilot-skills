@@ -102,47 +102,37 @@ Choices:
 python scripts/query_project.py --status "Closed-Completed" --closed-after DATE --format json --fields "Title,Status,Assignees,Report URL,_url,_closedAt"
 ```
 
-### Step 3: Scrape report summaries using Playwright
+### Step 3: Scrape report summaries using `scrape_reports.py`
 
-For each item that has a non-empty `Report URL`, use Playwright MCP browser tools. **Don't scrape the same URL twice** — cache results for shared report URLs.
+**CRITICAL: Summaries MUST come from the actual linked reports, NOT from GitHub issue descriptions.** If scraping fails, leave the summary blank and tell the user — never silently substitute content from the GitHub issue.
 
-1. **Navigate** to the report URL using `playwright-browser_navigate`
-2. **Wait** for the page to load (use `playwright-browser_wait_for` with `time: 5`)
-3. **Extract summary text** using `playwright-browser_evaluate` with this JavaScript:
-   ```javascript
-   () => {
-     const paragraphs = document.querySelectorAll('p');
-     const texts = [];
-     for (const p of paragraphs) {
-       const text = p.textContent.trim();
-       if (text.length > 80) texts.push(text);
-     }
-     return texts.slice(0, 12).join('\n\n');
+For each item that has a non-empty `Report URL`, update `scrape_reports.py` with the current URLs and run it. The script uses Playwright with a persistent Edge browser profile (`C:\Users\dagottl\AppData\Local\Temp\pw-profile`) that has Microsoft SSO auth cached.
+
+1. **Update the `URLS` dict** in `scrape_reports.py` — map each issue URL to its report URL:
+   ```python
+   URLS = {
+       "https://github.com/coreai-microsoft/caidr/issues/NNN": "https://hits.microsoft.com/...",
+       "https://github.com/coreai-microsoft/caidr/issues/MMM": "https://microsoft-my.sharepoint.com/...",
    }
    ```
-4. For **SharePoint documents** (URLs containing `sharepoint.com`), content is in an iframe. Use `playwright-browser_run_code` instead:
-   ```javascript
-   async (page) => {
-     const frames = page.frames();
-     for (const frame of frames) {
-       try {
-         const text = await frame.evaluate(() => {
-           const paras = document.querySelectorAll('p');
-           const texts = [];
-           for (const p of paras) {
-             const t = p.textContent.trim();
-             if (t.length > 60) texts.push(t);
-           }
-           return texts.slice(0, 20).join('\n\n');
-         });
-         if (text && text.length > 100) return text;
-       } catch(e) { continue; }
-     }
-     return '';
-   }
+   Only include items that have a non-empty Report URL. Don't scrape the same URL twice.
+
+2. **Run the script:**
+   ```bash
+   python scrape_reports.py
    ```
-5. For **Azure Data Explorer dashboards** (URLs containing `dataexplorer.azure.com`), look for the dashboard title and description from the page snapshot. These are metric dashboards, not text reports, so summarize what the dashboard tracks based on its title and visible metadata.
-6. For **GitHub repos**, navigate to markdown files and extract the rendered article content.
+   This opens Edge with cached auth, visits each URL, extracts text, and saves results to `scraped_reports.json`.
+
+3. **Review the output** — the script prints character counts per URL. If a URL returned 0 or very few characters, the scrape likely failed (auth issue, SPA didn't render, etc.). Tell the user which ones failed.
+
+The script handles these URL types automatically:
+- **HITS pages** (`hits.microsoft.com`) — SPA, waits 8s then grabs paragraphs > 80 chars
+- **SharePoint documents** (`sharepoint.com`) — tries main page first, then iframes for embedded Word docs
+- **Figma decks** (`figma.com`) — attempts to extract visible text, but Figma is a canvas SPA so results may be empty
+- **Azure Data Explorer dashboards** (`dataexplorer.azure.com`) — metric dashboards, not text reports; summarize based on title/visible metadata
+- **GitHub repos** — use `web_fetch` or navigate to markdown files and extract rendered content
+
+For URL types not handled by the script, add a new scraping function following the existing pattern.
 
 ### Step 4: Write catchy, accurate 2-3 sentence summaries
 
@@ -183,10 +173,12 @@ Open the generated file with `Start-Process completed-studies.html` and tell the
 
 ### Important Notes
 
-- Some report URLs may require Microsoft authentication. If a page shows "Authenticating..." for more than 10 seconds, skip that summary.
-- HITS pages (hits.microsoft.com) load via SPA — always wait 5 seconds after navigation.
+- **Never silently substitute GitHub issue content for report summaries.** If a report can't be scraped, leave the summary blank and tell the user.
+- The Playwright browser profile at `C:\Users\dagottl\AppData\Local\Temp\pw-profile` caches Microsoft SSO. If auth expires, the script may return empty content — tell the user to log in manually via Edge and retry.
+- HITS pages (hits.microsoft.com) load via SPA — the script waits 8 seconds after navigation.
 - If a report URL is empty or "None", skip it — leave Summary blank.
 - Researcher names may have pronoun suffixes like "(SHE/HER)" from GitHub profiles — the script auto-strips these.
+- Figma decks are canvas-based SPAs and may not yield text content. If scraping returns only CSS/HTML markup, treat it as a failed scrape.
 
 ## Key Definitions
 
