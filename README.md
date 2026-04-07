@@ -10,51 +10,11 @@ Reusable skills for [GitHub Copilot CLI](https://docs.github.com/copilot/concept
 
 ## How to Install a Skill
 
-### Option 1: Install for yourself (all projects)
-
-1. Create the skills directory if it doesn't exist:
-   ```powershell
-   # Windows
-   New-Item -ItemType Directory -Path "$env:USERPROFILE\.copilot\skills" -Force
-   ```
-   ```bash
-   # macOS / Linux
-   mkdir -p ~/.copilot/skills
-   ```
-
-2. Clone this repo into your skills folder:
-   ```powershell
-   # Windows
-   git clone https://github.com/danhgottlieb/copilot-skills.git "$env:USERPROFILE\.copilot\skills\copilot-skills-repo"
-   ```
-   ```bash
-   # macOS / Linux
-   git clone https://github.com/danhgottlieb/copilot-skills.git ~/.copilot/skills/copilot-skills-repo
-   ```
-
-3. Copy the skill you want into your skills directory:
-   ```powershell
-   # Windows — example for the Azure deployer skill
-   Copy-Item -Recurse "$env:USERPROFILE\.copilot\skills\copilot-skills-repo\azure-webapp-deployer-portable" "$env:USERPROFILE\.copilot\skills\azure-webapp-deployer-portable"
-   ```
-   ```bash
-   # macOS / Linux
-   cp -r ~/.copilot/skills/copilot-skills-repo/azure-webapp-deployer-portable ~/.copilot/skills/
-   ```
-
-4. Verify in Copilot CLI:
-   ```
-   /skills
-   ```
-   You should see `azure-webapp-deployer-portable` in the list.
-
-### Option 2: Just grab one file
-
-If you only want a single skill, download the `skill.md` file directly:
+### Quick Install (one command)
 
 ```powershell
 # Windows
-New-Item -ItemType Directory -Path "$env:USERPROFILE\.copilot\skills\azure-webapp-deployer-portable" -Force
+mkdir "$env:USERPROFILE\.copilot\skills\azure-webapp-deployer-portable" -Force
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/danhgottlieb/copilot-skills/master/azure-webapp-deployer-portable/skill.md" -OutFile "$env:USERPROFILE\.copilot\skills\azure-webapp-deployer-portable\skill.md"
 ```
 
@@ -65,9 +25,11 @@ curl -o ~/.copilot/skills/azure-webapp-deployer-portable/skill.md \
   https://raw.githubusercontent.com/danhgottlieb/copilot-skills/master/azure-webapp-deployer-portable/skill.md
 ```
 
-### Option 3: Install for a specific project
+Then run `/skills` in Copilot CLI to verify it's loaded.
 
-Drop the skill folder into your project's `.github/skills/` directory. Anyone working in that repo gets the skill automatically:
+### Alternative: Install for a specific project
+
+Drop the skill into your project's `.github/skills/` directory. Anyone working in that repo gets the skill automatically:
 
 ```
 your-repo/
