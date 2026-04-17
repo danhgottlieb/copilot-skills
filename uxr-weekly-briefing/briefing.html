@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UXR Weekly Briefing — 3D Report</title>
+<style>
+  :root {
+    --bg: #f6f8fa; --card: #ffffff; --border: #d0d7de;
+    --text: #1f2328; --muted: #656d76; --link: #0969da;
+    --blue: #0969da; --blue-bg: #ddf4ff; --blue-border: #54aeff;
+    --green: #1a7f37; --green-bg: #dafbe1; --green-border: #4ac26b;
+    --orange: #bc4c00; --orange-bg: #fff8c5; --orange-border: #d4a72c;
+    --purple: #8250df; --purple-bg: #fbefff; --purple-border: #c297ff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #24292f 0%, #0d1117 100%);
+    color: #fff; padding: 2rem 0; margin-bottom: 2rem; border-radius: 12px;
+  }
+  .header .container { padding: 0 2rem; }
+  .header h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.25rem; }
+  .header .subtitle { color: #8b949e; font-size: 0.95rem; }
+  .header .counts {
+    display: flex; gap: 1.5rem; margin-top: 1rem; flex-wrap: wrap;
+  }
+  .header .count-badge {
+    background: rgba(255,255,255,0.1); border-radius: 20px;
+    padding: 0.35rem 1rem; font-size: 0.85rem; font-weight: 600;
+  }
+  .count-badge.blue { color: #79c0ff; }
+  .count-badge.green { color: #7ee787; }
+  .count-badge.orange { color: #f0883e; }
+
+  /* Nav */
+  .nav {
+    display: flex; gap: 0.75rem; margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; flex-wrap: wrap;
+  }
+  .nav a {
+    text-decoration: none; padding: 0.4rem 1rem; border-radius: 20px;
+    font-size: 0.85rem; font-weight: 600; transition: all 0.15s;
+  }
+  .nav a:hover { opacity: 0.85; }
+  .nav a.blue { background: var(--blue-bg); color: var(--blue); }
+  .nav a.green { background: var(--green-bg); color: var(--green); }
+  .nav a.orange { background: var(--orange-bg); color: var(--orange); }
+  .nav a.purple { background: var(--purple-bg); color: var(--purple); }
+
+  /* Sections */
+  .section { margin-bottom: 2.5rem; }
+  .section-header {
+    display: flex; align-items: center; gap: 0.6rem;
+    margin-bottom: 1rem; padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border);
+  }
+  .section-header h2 { font-size: 1.3rem; font-weight: 700; }
+  .section-header .badge {
+    font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem;
+    border-radius: 12px; color: #fff;
+  }
+  .badge-blue { background: var(--blue); }
+  .badge-green { background: var(--green); }
+  .badge-orange { background: var(--orange); }
+
+  /* Cards */
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.25rem; margin-bottom: 0.75rem;
+    transition: box-shadow 0.15s;
+  }
+  .card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .card-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.6rem;
+  }
+  .card-title {
+    font-size: 1rem; font-weight: 600;
+  }
+  .card-title a { color: var(--link); text-decoration: none; }
+  .card-title a:hover { text-decoration: underline; }
+  .card-meta {
+    display: flex; flex-wrap: wrap; gap: 0.75rem; font-size: 0.8rem; color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .card-meta span { display: inline-flex; align-items: center; gap: 0.25rem; }
+  .card-summary {
+    font-size: 0.85rem; line-height: 1.5; color: var(--text); margin-top: 0.5rem;
+  }
+  .card-activity {
+    margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid #eee;
+  }
+  .card-activity h4 {
+    font-size: 0.78rem; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem;
+  }
+  .card-activity .comment {
+    font-size: 0.8rem; color: var(--text); margin-bottom: 0.35rem;
+    padding-left: 0.75rem; border-left: 2px solid var(--border);
+  }
+  .card-activity .comment .author { font-weight: 600; color: var(--muted); }
+
+  /* Labels */
+  .label {
+    display: inline-block; font-size: 0.7rem; font-weight: 600;
+    padding: 0.15rem 0.5rem; border-radius: 12px;
+    background: #ddf4ff; color: #0969da; margin-right: 0.25rem;
+  }
+
+  /* Deadline callout */
+  .deadline-callout {
+    background: #fff8c5; border: 1px solid #d4a72c; border-radius: 6px;
+    padding: 0.4rem 0.75rem; font-size: 0.82rem; font-weight: 600;
+    color: #6a4e00; display: inline-block; margin-top: 0.4rem;
+  }
+
+  /* Blocker callout */
+  .blocker-callout {
+    background: #ffebe9; border: 1px solid #ff7b72; border-radius: 6px;
+    padding: 0.6rem 0.9rem; font-size: 0.82rem; color: #82071e; margin-top: 0.5rem;
+  }
+  .blocker-callout strong { color: #a40e26; }
+
+  /* Stakeholder table */
+  .stakeholder-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+  .stakeholder-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1rem;
+  }
+  .stakeholder-card h4 {
+    font-size: 0.82rem; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.5rem;
+  }
+  .stakeholder-card ul { list-style: none; }
+  .stakeholder-card li { font-size: 0.85rem; padding: 0.15rem 0; }
+
+  /* New badge */
+  .new-badge {
+    background: #1a7f37; color: #fff; font-size: 0.65rem; font-weight: 700;
+    padding: 0.15rem 0.45rem; border-radius: 8px; margin-left: 0.4rem;
+    vertical-align: middle;
+  }
+
+  /* Phase badge */
+  .phase-badge {
+    background: var(--purple-bg); color: var(--purple); font-size: 0.7rem;
+    font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 12px;
+  }
+
+  .empty-state {
+    text-align: center; padding: 2rem; color: var(--muted); font-style: italic;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center; padding: 1.5rem; color: var(--muted);
+    font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 2rem;
+  }
+  .footer a { color: var(--link); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="container">
+    <h1>📊 UXR Weekly Briefing</h1>
+    <div class="subtitle">3D Report: Deadlines · Deployments · Dependencies — Since 2026-03-20 — Generated 2026-03-27</div>
+    <div class="counts">
+      <span class="count-badge blue">📅 40 In Progress</span>
+      <span class="count-badge green">🚀 7 Completed</span>
+      <span class="count-badge orange">⚠️ 11 Blocked / Flagged</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <nav class="nav">
+    <a href="#deadlines" class="blue">📅 Deadlines</a>
+    <a href="#deployments" class="green">🚀 Deployments</a>
+    <a href="#dependencies" class="orange">⚠️ Dependencies</a>
+    <a href="#stakeholders" class="purple">👥 Stakeholders</a>
+  </nav>
+
+  <section id="deadlines" class="section">
+      <div class="section-header">
+        <h2>📅 Deadlines</h2>
+        <span class="badge badge-blue">40 studies</span>
+      </div>
+      <div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/320">FoundryIQ &amp; Tools - Foundational Customer Interviews</a></div>
+            <div><span class="label">UXR</span> <span class="label">Apps and Agents</span> <span class="label">Knowledge</span> <span class="label">Tools (UAP MCP)</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Irina Smoke</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/324">Knowledge Graph</a></div>
+            <div></div>
+          </div>
+          <div class="card-meta"><span>👤 Irina Smoke</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title">Cross-Vertical Research (Foundry, Logic Apps, CPS)</div>
+            <div></div>
+          </div>
+          <div class="card-meta"><span>PM: Nitasha</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/458">Python Day 0 ethnographic benchmark</a></div>
+            <div><span class="label">UXR</span> <span class="label">Azure Dev - Compute</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Nupur Dutta</span><span class="phase-badge">Design</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/339">Browser Automation Discovery</a></div>
+            <div><span class="label">UXR</span> <span class="label">Apps and Agents</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Nupur Dutta</span><span class="phase-badge">Design</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/48">Customer definitions for Apps and Agents</a></div>
+            <div><span class="label">UXR</span> <span class="label">Apps and Agents</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Jessica Rich</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/55">GH board feature requests</a></div>
+            <div><span class="label">UXR</span> <span class="label">Other/Horizontal</span></div>
+          </div>
+          <div class="card-meta"><span>👤 JP Carrascal</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/56">Explain board to UXRs in IDC and Shanghai</a></div>
+            <div><span class="label">UXR</span> <span class="label">Other/Horizontal</span></div>
+          </div>
+          <div class="card-meta"><span>👤 JP Carrascal</span><span class="phase-badge">Design</span><span>PM: No pm</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/57">Customer Outcomes/JTBD kit</a></div>
+            <div><span class="label">UXR</span> <span class="label">Other/Horizontal</span> <span class="label">Strategic</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Monty Hammontree, Mike Brzozowski</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/117">Azure Cache for Redis Survey (yearly)</a></div>
+            <div><span class="label">UXR</span> <span class="label">Azure Dev - Platform</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Andrew Stoltzfus (Wipro Designit Services Inc)</span><span>📦 Redis</span><span>🔬 Survey</span><span>PM: Catherine</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/118">Azure Managed Redis survey</a></div>
+            <div><span class="label">UXR</span> <span class="label">Azure Dev - Platform</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Andrew Stoltzfus (Wipro Designit Services Inc)</span><span>📦 Redis</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/172">APIM compete for mid-market (AI workloads)</a></div>
+            <div><span class="label">UXR</span> <span class="label">Apps and Agents</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Ilana Diamant (Wipro Designit Services Inc)</span><span>📦 APIM</span><span>🔬 Other</span><span>PM: Mike B., Vlad</span></div>
+          <div class="deadline-callout">🎯 Target date: 2026-01-31</div>
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/185">Agentic AI Builders – Show and Tell</a></div>
+            <div><span class="label">UXR</span> <span class="label">Apps and Agents</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Taryn Bipat</span><span>PM: Dheeraj</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/206">Evaluate product-market fit for SRE Agent heading towards GA</a></div>
+            <div><span class="label">UXR</span> <span class="label">Azure Dev - Compute</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Mike Brzozowski</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/248">Day 1 survey analysis</a></div>
+            <div><span class="label">UXR</span> <span class="label">Azure Dev - Compute</span> <span class="label">Agentic DevOps</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Mike Brzozowski</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/218">Visual Studio Cursor Compete Study</a></div>
+            <div><span class="label">UXR</span> <span class="label">AI Assisted Coding - GHCP</span> <span class="label">AI Assisted Coding - VS IDE</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Charles Paul Harris-White</span><span class="phase-badge">Design</span><span>🔬 Usability (e.g. QP)</span><span>PM: Andy Sterland</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/233">Agentic DevOps customer segmentation</a></div>
+            <div><span class="label">UXR</span> <span class="label">Azure Dev - Compute</span> <span class="label">Strategic</span> <span class="label">Agentic DevOps</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Mike Brzozowski</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/236">Agentic Solution Product Strategy</a></div>
+            <div><span class="label">UXR</span> <span class="label">Apps and Agents</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Jessica Rich</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/241">Competitive analysis of AI in China - AI assisted Coding</a></div>
+            <div><span class="label">UXR</span> <span class="label">AI Assisted Coding - GHCP</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Wei Zhang, Yuie Yu (CSI INTERFUSION INC)</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/243">Competitive analysis of AI in China - emerging LLMs</a></div>
+            <div><span class="label">UXR</span> <span class="label">Apps and Agents</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Wei Zhang</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/246">Github Copilot for 3P IDEs</a></div>
+            <div><span class="label">UXR</span> <span class="label">AI Assisted Coding - GHCP</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Wei Zhang</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/252">M&amp;M customer model</a></div>
+            <div><span class="label">UXR</span> <span class="label">Migration &amp; Modernization</span> <span class="label">Strategic</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Maryam Maleki</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/287">Develop Target customer definitions across CoreAI portfolio</a></div>
+            <div><span class="label">UXR</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Jessica Rich</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/318">[RAI] Customer Definition Baseline</a></div>
+            <div><span class="label">UXR</span> <span class="label">Azure AI Content Safety</span> <span class="label">Control Plane / Governance</span> <span class="label">Foundry Observability</span> <span class="label">Foundry Overall</span> <span class="label">Trust / Guardrails</span></div>
+          </div>
+          <div class="card-meta"><span>👤 April Reagan</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/27">[3P] Finalize and publish DevSecOps CCM</a></div>
+            <div><span class="label">UXR</span> <span class="label">Azure DevOps</span></div>
+          </div>
+          <div class="card-meta"><span>👤 April Reagan</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/330">Signals v-team: AI-fueled career growth</a></div>
+            <div><span class="label">UXR</span> <span class="label">Other/Horizontal</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Jake Rhodes, Ben Hanrahan, Mike Brzozowski</span><span class="phase-badge">Reporting</span></div>
+          
+          
+          <div class="card-activity">
+              <h4>Recent Activity (Last 7 Days)</h4>
+              <div class="comment"><span class="author">@grhodes_microsoft</span> (2026-03-24): **Collection &amp; Sensemaking complete**
+Data collection:  
+- I've wrapped up data collection and synthesis of the Signals VTeam project for AI Fueled career growth.  Here are my current artefacts:
+
+- The[ Mural diagram that I used for sensemaking can be found here](https://app.mural.co/t/customerdrive…</div>
+            </div>
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/208">AI Assisted AGENT building</a></div>
+            <div><span class="label">UXR</span> <span class="label">Other/Horizontal</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Jake Rhodes</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/428">Agentic App Mod  - Modernization playbooks</a></div>
+            <div><span class="label">Apps and Agents</span> <span class="label">Migration &amp; Modernization</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Maryam Maleki</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/531">Agent Optimization Service - CVT</a></div>
+            <div></div>
+          </div>
+          <div class="card-meta"><span>👤 Irina Smoke</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/550">Embr (Startup Cloud) UXR Collaboration with Azure Core</a></div>
+            <div><span class="label">UXR</span> <span class="label">Apps and Agents</span> <span class="label">Azure Dev - Tools</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Irina Smoke</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/551">Existing Foundry Observability Customers - Feedback</a></div>
+            <div><span class="label">Foundry Observability</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Giselle Monfared</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/578">CAIDR Target customer film festival Part 2</a></div>
+            <div><span class="label">Target Customers</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Jessica Rich</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/595">AITK Foundry Extensions Study</a></div>
+            <div></div>
+          </div>
+          <div class="card-meta"><span>👤 Annemarie Fulcer</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/600">Custom code training Foundry IA</a></div>
+            <div></div>
+          </div>
+          <div class="card-meta"><span>👤 Annemarie Fulcer</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/681">Grafana Agent</a></div>
+            <div><span class="label">UXR</span> <span class="label">Azure Dev - Platform</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Andrew Stoltzfus (Wipro Designit Services Inc)</span><span class="phase-badge">Design</span><span>📦 Grafana</span><span>🔬 Interview</span><span>PM: Ayobami</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/710">Outset AI test - boundries</a><span class="new-badge">NEW</span></div>
+            <div><span class="label">AI Assisted Coding - GHCP</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Jake Rhodes</span><span class="phase-badge">Data analysis</span></div>
+          
+          
+          <div class="card-activity">
+              <h4>Recent Activity (Last 7 Days)</h4>
+              <div class="comment"><span class="author">@grhodes_microsoft</span> (2026-03-24): Data collection is done (used UserInterviews for panel)
+I'm going through the tool now to understand how it works and assess it's utility for what we are doing (purpose of the test).
+
+You can [see the project in OustetAI here](https://outset.ai/shared/report/684b2b60-7a8f-4da0-84c8-032fd561aead/8ae0…</div>
+            </div>
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/711">GHCP Laggards 3 - Pos Use cases</a><span class="new-badge">NEW</span></div>
+            <div><span class="label">AI Assisted Coding - GHCP</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Jake Rhodes</span><span class="phase-badge">Reporting</span></div>
+          
+          
+          <div class="card-activity">
+              <h4>Recent Activity (Last 7 Days)</h4>
+              <div class="comment"><span class="author">@grhodes_microsoft</span> (2026-03-24): Data collection, analysis, and reporting are now done.
+Report is [available in HITS here](https://hits.microsoft.com/study/6048643).  
+</div>
+            </div>
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/736">Cloud + Agents: Aligning Hybrid Architectures with Business KPIs</a><span class="new-badge">NEW</span></div>
+            <div><span class="label">Apps and Agents</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Travis Lowdermilk</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/737">AI-Powered Application Security Tooling</a><span class="new-badge">NEW</span></div>
+            <div><span class="label">1ES</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Travis Lowdermilk</span></div>
+          
+          
+          
+        </div><div class="card">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/749">[RAI] Evals on the CLI</a><span class="new-badge">NEW</span></div>
+            <div><span class="label">UXR</span> <span class="label">RAI-Design</span></div>
+          </div>
+          <div class="card-meta"><span>👤 April Reagan, Giselle Monfared</span></div>
+          
+          
+          
+        </div>
+    </section>
+  <section id="deployments" class="section">
+      <div class="section-header">
+        <h2>🚀 Deployments</h2>
+        <span class="badge badge-green">7 completed</span>
+      </div>
+      <div class="card" style="border-left: 3px solid var(--green);">
+          <div class="card-header">
+            <div class="card-title"><a href="https://microsoftapc-my.sharepoint.com/:p:/g/personal/nupurdutta_microsoft_com/IQD0Io6cnBHzTJEAGUqFOC0_AegEJYJXAl3EB2FF1Zsj7II?e=nN7JvJ">Validating the Value of Agent-Driven Testing</a></div>
+            <div><span class="label">UXR</span> <span class="label">Apps and Agents</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Nupur Dutta</span><span>✅ Closed: 2026-03-27</span><span>📦 Load Testing</span><span>PM: Abhinav Premsekhar</span></div>
+          <div class="card-summary">Engineering teams already want AI agents to handle testing, but preview-before-execute is non-negotiable for agent-generated tests. Cost, noise, and approval fatigue are the biggest adoption risks, while log-driven test suggestions, early release risk signals, and CI/CD integration nudges are the quick wins worth investing in.</div>
+          <div style="font-size:0.78rem; margin-top:0.3rem; color:var(--muted);">📎 <a href="https://github.com/coreai-microsoft/caidr/issues/9">GitHub Issue</a> · <a href="https://microsoftapc-my.sharepoint.com/:p:/g/personal/nupurdutta_microsoft_com/IQD0Io6cnBHzTJEAGUqFOC0_AegEJYJXAl3EB2FF1Zsj7II?e=nN7JvJ">Full Report</a></div>
+        </div><div class="card" style="border-left: 3px solid var(--green);">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/594">VSC Extension Surveys + Agent</a></div>
+            <div></div>
+          </div>
+          <div class="card-meta"><span>👤 Annemarie Fulcer</span><span>✅ Closed: 2026-03-25</span></div>
+          <div class="card-summary">Replaced manual monthly AITK/Foundry extension survey analysis with an AI-powered Qualtrics agent that lets PMs, engineers, and designers chat directly with survey data to surface PMF, NPS, bugs, UX issues, and recommended customers on demand.</div>
+          <div style="font-size:0.78rem; margin-top:0.3rem; color:var(--muted);">📎 <a href="https://github.com/coreai-microsoft/caidr/issues/594">GitHub Issue</a></div>
+        </div><div class="card" style="border-left: 3px solid var(--green);">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/596">Solution Template Studies</a></div>
+            <div></div>
+          </div>
+          <div class="card-meta"><span>👤 Annemarie Fulcer</span><span>✅ Closed: 2026-03-24</span></div>
+          <div class="card-summary">Ran a prioritization study and observation study on solution templates, identifying which templates matter most and where the experience breaks down — next steps include LLM-moderated navigation testing and syncing with marketing partners.</div>
+          <div style="font-size:0.78rem; margin-top:0.3rem; color:var(--muted);">📎 <a href="https://github.com/coreai-microsoft/caidr/issues/596">GitHub Issue</a></div>
+        </div><div class="card" style="border-left: 3px solid var(--green);">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/538">[RAI] agent summary concept workshop</a></div>
+            <div><span class="label">UXR</span> <span class="label">RAI-Design</span></div>
+          </div>
+          <div class="card-meta"><span>👤 April Reagan</span><span>✅ Closed: 2026-03-27</span></div>
+          <div class="card-summary">Internal 1P workshop reviewing an agent summary concept for responsible AI, bringing stakeholders together to stress-test the design before implementation.</div>
+          <div style="font-size:0.78rem; margin-top:0.3rem; color:var(--muted);">📎 <a href="https://github.com/coreai-microsoft/caidr/issues/538">GitHub Issue</a></div>
+        </div><div class="card" style="border-left: 3px solid var(--green);">
+          <div class="card-header">
+            <div class="card-title"><a href="https://microsoft.sharepoint.com/:p:/t/AIPResponsibleAI/cQorakcrDncpR6ih4dWbScnGEgUChKgoFyE0LUMYMbnDWpSxpg">[RAI:] DSB - Process federation</a></div>
+            <div><span class="label">UXR</span> <span class="label">Other/Horizontal</span></div>
+          </div>
+          <div class="card-meta"><span>👤 April Reagan</span><span>✅ Closed: 2026-03-27</span></div>
+          <div class="card-summary">Evaluated the federation of DSB (Data Safety Board) processes with customers, assessing how responsible AI review activities can be distributed and streamlined across teams.</div>
+          <div style="font-size:0.78rem; margin-top:0.3rem; color:var(--muted);">📎 <a href="https://github.com/coreai-microsoft/caidr/issues/402">GitHub Issue</a> · <a href="https://microsoft.sharepoint.com/:p:/t/AIPResponsibleAI/cQorakcrDncpR6ih4dWbScnGEgUChKgoFyE0LUMYMbnDWpSxpg">Full Report</a></div>
+        </div><div class="card" style="border-left: 3px solid var(--green);">
+          <div class="card-header">
+            <div class="card-title"><a href="https://hits.microsoft.com/note/8008395">Multi Agent Workflow Interviews + VS Code Agent Sessions Review</a></div>
+            <div><span class="label">AI Assisted Coding - VS Code</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Sara Chizari</span><span>✅ Closed: 2026-03-23</span></div>
+          <div class="card-summary">All three power users independently architect their entire multi-agent workflows around context window limits — splitting sessions, clearing context between tasks, committing markdown plans to preserve state. The real problem: quality degrades silently before context runs out, and there is no signal telling developers when output has started to rot.</div>
+          <div style="font-size:0.78rem; margin-top:0.3rem; color:var(--muted);">📎 <a href="https://github.com/coreai-microsoft/caidr/issues/593">GitHub Issue</a> · <a href="https://hits.microsoft.com/note/8008395">Full Report</a></div>
+        </div><div class="card" style="border-left: 3px solid var(--green);">
+          <div class="card-header">
+            <div class="card-title"><a href="https://www.figma.com/deck/Sh2mTAkMgCFm2RRmSDQvNy/517-Study-Results-Deck?node-id=1-42">Adding local data sources in Foundry - Usability Study (Student sponsored project)</a></div>
+            <div><span class="label">Apps and Agents</span> <span class="label">Foundry Overall</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Irina Smoke</span><span>✅ Closed: 2026-03-25</span></div>
+          <div class="card-summary">UW students ran a usability study on adding local data sources in Foundry, revealing where the creation flow confuses users and where the experience needs polish before broader rollout.</div>
+          <div style="font-size:0.78rem; margin-top:0.3rem; color:var(--muted);">📎 <a href="https://github.com/coreai-microsoft/caidr/issues/686">GitHub Issue</a> · <a href="https://www.figma.com/deck/Sh2mTAkMgCFm2RRmSDQvNy/517-Study-Results-Deck?node-id=1-42">Full Report</a></div>
+        </div>
+    </section>
+  <section id="dependencies" class="section">
+      <div class="section-header">
+        <h2>⚠️ Dependencies</h2>
+        <span class="badge badge-orange">11 flagged</span>
+      </div>
+      <div class="card" style="border-left: 3px solid var(--orange);">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/421">VS Code Nuget Ext. Eval</a></div>
+            <div><span class="label">UXR</span> <span class="label">Languages - .NET</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Jake Rhodes</span><span>⏸️ On hold</span></div>
+          
+          
+        </div><div class="card" style="border-left: 3px solid var(--orange);">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/81">PROJECT:  .NET App Mod Eval studies (Oct.)</a></div>
+            <div><span class="label">UXR</span> <span class="label">Languages - .NET</span> <span class="label">Migration &amp; Modernization</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Jake Rhodes</span><span>⏸️ On hold</span></div>
+          <div class="blocker-callout"><strong>🚫 Blocker Details:</strong><br>**What do we need to work on to get the modernization flow right for .NET developers?**
+Get customer feedback on the current design for the .NET modernization flow (Mika, Brady)</div>
+          
+        </div><div class="card" style="border-left: 3px solid var(--orange);">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/316">Knowledge Base Churn Analysis</a></div>
+            <div><span class="label">UXR</span> <span class="label">Apps and Agents</span> <span class="label">Knowledge</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Irina Smoke</span><span>⏸️ On hold</span></div>
+          
+          
+        </div><div class="card" style="border-left: 3px solid var(--orange);">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/24">GItHub Proxima Migration and Hybrid Experience.</a></div>
+            <div><span class="label">UXR</span> <span class="label">1ES</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Travis Lowdermilk</span><span>⏸️ On hold</span></div>
+          
+          
+        </div><div class="card" style="border-left: 3px solid var(--orange);">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/486">PR Assistant - Opportunities for Improvement</a></div>
+            <div><span class="label">1ES</span> <span class="label">Compete</span> <span class="label">AI Assisted Coding - PR Assistant</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Travis Lowdermilk</span><span>⏸️ On hold</span></div>
+          
+          
+        </div><div class="card" style="border-left: 3px solid var(--orange);">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/485">Comparison of Cross-Functional vs. Engineering-Only Squads Participating in Camp AIR</a></div>
+            <div><span class="label">1ES</span> <span class="label">Culture and Team Dynamics</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Travis Lowdermilk</span><span>⏸️ On hold</span></div>
+          
+          
+        </div><div class="card" style="border-left: 3px solid var(--orange);">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/210">Enable adoption + growth tracking</a></div>
+            <div><span class="label">UXR</span> <span class="label">Azure Dev - Compute</span> <span class="label">Agentic DevOps</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Mike Brzozowski</span><span>⏸️ On hold</span></div>
+          
+          
+        </div><div class="card" style="border-left: 3px solid var(--orange);">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/8">Observation study: unifying experience for agent development</a></div>
+            <div><span class="label">UXR</span> <span class="label">Apps and Agents</span></div>
+          </div>
+          <div class="card-meta"><span>👤 JP Carrascal, Yuie Yu (CSI INTERFUSION INC)</span><span>⏸️ On hold</span></div>
+          
+          
+        </div><div class="card" style="border-left: 3px solid var(--orange);">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/19">VS Code Data Wrangler for AI/Agents</a></div>
+            <div><span class="label">UXR</span> <span class="label">Apps and Agents</span> <span class="label">Languages - Python</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Annemarie Fulcer</span><span>⏸️ On hold</span><span>PM: Angelos Petropoulos</span></div>
+          
+          
+        </div><div class="card" style="border-left: 3px solid var(--orange);">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/115">Employee Onboarding Satisfaction</a></div>
+            <div><span class="label">UXR</span> <span class="label">Other/Horizontal</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Taryn Bipat, Charles Paul Harris-White</span><span>⏸️ On hold</span><span>📦 Horizontal / Culture</span></div>
+          
+          
+        </div><div class="card" style="border-left: 3px solid var(--orange);">
+          <div class="card-header">
+            <div class="card-title"><a href="https://github.com/coreai-microsoft/caidr/issues/116">ACA VSCode extension experience</a></div>
+            <div><span class="label">UXR</span> <span class="label">Azure Dev - Compute</span></div>
+          </div>
+          <div class="card-meta"><span>👤 Taryn Bipat</span><span>⏸️ On hold</span><span>📦 Azure Container Apps (ACA)</span></div>
+          <div class="blocker-callout"><strong>🚫 Blocker Details:</strong><br>- The extension experience is disjointed
+- Portal experience has been some through improvements (still ongoing)
+- Now the extension needs a revamp</div>
+          
+        </div>
+    </section>
+  <section id="stakeholders" class="section">
+      <div class="section-header">
+        <h2>👥 Key Stakeholders</h2>
+      </div>
+      <div class="stakeholder-grid">
+        <div class="stakeholder-card">
+          <h4>Researchers</h4>
+          <ul><li>Andrew Stoltzfus (Wipro Designit Services Inc)</li><li>Annemarie Fulcer</li><li>April Reagan</li><li>Ben Hanrahan</li><li>Ben Noah</li><li>Charles Paul Harris-White</li><li>Chip Baker</li><li>Claude</li><li>Copilot</li><li>Daniel Gottlieb</li><li>Giselle Monfared</li><li>Ilana Diamant (Wipro Designit Services Inc)</li><li>Irina Smoke</li><li>JP Carrascal</li><li>Jake Rhodes</li><li>Jessica Rich</li><li>Maryam Maleki</li><li>Mike Brzozowski</li><li>Monty Hammontree</li><li>Nupur Dutta</li><li>Sara Chizari</li><li>Steven Clarke</li><li>Taryn Bipat</li><li>Travis Lowdermilk</li><li>Wei Zhang</li><li>Yuie Yu (CSI INTERFUSION INC)</li></ul>
+        </div>
+        <div class="stakeholder-card">
+          <h4>Program Managers</h4>
+          <ul><li> Ayobami</li><li>Abhinav Premsekhar</li><li>Al</li><li>Al Tsang</li><li>Amanda</li><li>Amir?</li><li>Andy Sterland</li><li>Angelos Petropoulos</li><li>Angelos Petropoulos/Mandy</li><li>Anish</li><li>Arun (designer)</li><li>Asir</li><li>Ayobami</li><li>Balan</li><li>Carolina Uribe-Gosselin</li><li>Catherine</li><li>Chris Harris</li><li>Chris Harris and Yun Jung Choi</li><li>Courtney Webster</li><li>Dan Taylor</li><li>Deepthi</li><li>Deepthi Chelupati</li><li>Dheeraj</li><li>Dheeraj, Natalia</li><li>Dheeraj, Nick</li><li>Divya</li><li>Divya, Travis Harris (eng)</li><li>Eamon, Shreya</li><li>Haley Huber</li><li>Han Che</li><li>Hang Wang</li><li>Hanna, Skyler</li><li>Jan Kalis</li><li>Jeff</li><li>Jessie Huang</li><li>John Stallo</li><li>Jordan Selig, Yutang Lin</li><li>Julia, Slava</li><li>Kent</li><li>Kirsten Womack</li><li>Kristen Womack and Jeff Omhover</li><li>Kyle, Xiaowei</li><li>Lily, Dheeraj, Thiago</li><li>Lori Fraleigh, Mandy Whaley</li><li>Mads Kristensen, Andy Sterland</li><li>Mandy</li><li>Mandy, Nir, Ryan</li><li>Mike B., Vlad</li><li>Mike, Vlad</li><li>Mrk, Mukta, Nuzhat</li><li>Nagarjuna vipparthi</li><li>Nayana, Will (dev)</li><li>Nick</li><li>Nick, Jialuo</li><li>Nikita</li><li>Nikita, Nagarjuna</li><li>Nir</li><li>Nitasha</li><li>No pm</li><li>Nuzhat</li><li>PC</li><li>PC Chan</li><li>Paul, Chris</li><li>Priyanshi</li><li>Q</li><li>Rachel Kang, Jessie Houghton</li><li>Ramya</li><li>Reilly, Amanda Wang, Byron</li><li>Rong</li><li>Ruben Rios</li><li>Sam</li><li>Sam, Wei-Hung</li><li>Samuel Zhang</li><li>Scott</li><li>Sebastian</li><li>Shané Winner</li><li>Sharon</li><li>Sharon, John Miller</li><li>Shon</li><li>Shruti</li><li>Simon Jakesch</li><li>Slava</li><li>Sonali Malik</li><li>Soojin</li><li>Taysser</li><li>Thasmika</li><li>Tony</li><li>Tulika</li><li>Udi</li><li>Varun</li><li>Wagner</li><li>Wagner Silveira</li><li>Wei-hung, Xiaowei</li></ul>
+        </div>
+        <div class="stakeholder-card">
+          <h4>Designers</h4>
+          <ul><li>Arun Thangaraj</li><li>Augustus Arthur</li><li>Bonica</li><li>Chip, Megan</li><li>Claire</li><li>Elijah King</li><li>Kristin</li><li>Kristin, Mina</li><li>Ximena</li><li>Ximena Cuenca</li></ul>
+        </div>
+      </div>
+    </section>
+</div>
+
+<div class="footer">
+  Data from <a href="https://github.com/orgs/coreai-microsoft/projects/40/views/1">UXR Team Projects</a> · Generated by UXR Weekly Briefing Skill
+</div>
+
+</body>
+</html>

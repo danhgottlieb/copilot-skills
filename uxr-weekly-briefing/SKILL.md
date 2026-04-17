@@ -60,9 +60,9 @@ Read `briefing_data.json` and review each section:
 - Describe the blocker clearly from the `blocker_notes` and `recent_comments`.
 - Link to the issue so the reader can investigate further.
 
-### Step 3: Scrape report summaries for Deployments (Optional but recommended)
+### Step 3: Scrape report summaries for Deployments (REQUIRED — not optional)
 
-For each deployment that has a non-empty `report_url`, scrape the report to get a one-line summary.
+For each deployment that has a non-empty `report_url`, you **must** scrape the report to get summary content. Never write summaries from just the GitHub issue description — always get the actual report content first.
 
 **Use the existing Playwright infrastructure.** Update `copilot-skills/uxr-project-tracker/scrape_reports.py`:
 
@@ -78,9 +78,17 @@ For each deployment that has a non-empty `report_url`, scrape the report to get 
    cd copilot-skills/uxr-project-tracker && python scrape_reports.py
    ```
 
-3. Read `scraped_reports.json` and write concise, catchy one-line summaries for each study.
+3. Read `scraped_reports.json` and write summaries based on the **actual scraped report content**.
 
-**If scraping is not possible** (auth expired, Figma canvas, etc.), write a summary based on the GitHub issue body instead. Note which summaries came from the report vs. the issue.
+**If scraping fails** (auth expired, Figma canvas, etc.), troubleshoot it first — re-run the script, check the browser profile, try a different extraction strategy. Only fall back to the GitHub issue body as a last resort after exhausting scraping options.
+
+**Summary rules:**
+- Always summarize from the scraped report content, not the GitHub issue
+- Include brief context on what the study was and why (1 sentence)
+- Include key takeaways only if they are clearly stated in the scraped report — do not infer or embellish
+- Verify every claim against the scraped source text before including it
+- Do not mix information from GitHub issue comments into the summary as if it came from the study report
+- Keep it brief — 2-3 sentences total
 
 **Summary style**: Factual, interesting, action-oriented. Examples:
 - "Five power users who constantly hit rate limits didn't revolt at token-based billing — they just want to see the meter."

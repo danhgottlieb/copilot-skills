@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recently Completed UXR Studies</title>
+<style>
+  body { font-family: 'Segoe UI', Calibri, Arial, sans-serif; margin: 2rem; background: #fff; color: #24292f; }
+  h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+  .subtitle { color: #656d76; margin-bottom: 1.5rem; font-size: 0.9rem; }
+  table { border-collapse: collapse; width: 100%; background: #fff; font-family: 'Segoe UI', Calibri, Arial, sans-serif; }
+  th, td { border: 1px solid #8b949e; padding: 8px 12px; font-size: 11pt; vertical-align: top; }
+  th { background: #24292f; color: #fff; text-align: left; font-weight: 600; }
+  .summary { color: #1f2328; font-size: 10pt; line-height: 1.4; }
+  a { color: #0969da; text-decoration: underline; }
+  .count { margin-top: 1rem; color: #656d76; font-size: 0.85rem; }
+</style>
+</head>
+<body>
+<h1>Recently Completed UXR Studies</h1>
+<div class="subtitle">Closed-Completed since 2026-04-09 &mdash; from <a href="https://github.com/orgs/coreai-microsoft/projects/40/views/1">UXR Team Projects</a></div>
+<table>
+<thead>
+<tr><th>Study</th><th>Researcher</th><th>Key Learnings / Summary</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td><a href="https://microsoft-my.sharepoint.com/:p:/p/irsmoke/cQr3lsnIzemZQ6sFSmVyE9gwEgUCDAvtRMpeNiWs6ZH2105Gqg">Knowledge, Tools, and Agent Building - JTBD and Pain Points - Customer Interview Learnings</a></td>
+  <td>Irina Smoke</td>
+  <td class="summary"><strong>Jobs in using data &amp; tools with agents include:</strong> Finding and accessing data, Consolidating data from multiple sources, Normalizing and pre-processing messy, inconsistent data, Connecting to data sources and tools, Improving data retrieval (e.g., implement semantic search, build context graphs), Managing agent context effectively, Ensuring RBAC is respected, Keeping data up-to-date in production, and tracing agent behavior across data and tool calls.<br>
+<strong>Pain Points in Data &amp; Tools:</strong><br>
+<ul style="margin:4px 0;padding-left:20px;">
+<li><strong>Normalizing, “untangling,” connecting enterprise data</strong> (especially unstructured data) from a variety of sources and getting them ready for agent use is a time consuming, intensive process.</li>
+<li><strong>Expressing the structure and meaning of your data to agents</strong> is a challenge and customers do a variety of things, ranging from building knowledge graphs to using tools like Notion to write wiki-style articles for their agents to understand their datasets</li>
+<li><strong>Context engineering</strong> requires careful management, even with larger context windows</li>
+<li>Customers are challenged with <strong>ensuring data security and privacy</strong>. For example, ensuring that RBAC is respected (i.e. if I query an agent it only shows me data I’m allowed to see) and data isolation between their end customers</li>
+<li><strong>Keeping RAG and graph indexes production fresh</strong> is a challenge - both using production data to improve their agents (a process with many manual steps today) and building data pipelines to ensure that new content is ingested properly in a timely manner.</li>
+</ul></td>
+</tr><tr>
+  <td><a href="https://microsoft-my.sharepoint.com/:p:/p/pujapandya/IQA-5Jn_VhxATJ_U1tIqOWpfATILagNlMqMFMn-bRjVPU0c?e=sE6hSb">Startup cloud and neocloud interviews - high level</a></td>
+  <td>Irina Smoke</td>
+  <td class="summary"><ul style="margin:4px 0;padding-left:20px;">
+<li>Consensus that core features of Embr aka Startup Cloud align with early-stage startup needs</li>
+<li>Cost visibility and management was a major concern (especially with split billing when extending into Azure)</li>
+<li>Language support for Go and Java requested (over .NET)</li>
+<li>Opinionated defaults received, but transparency is crucial</li>
+<li>Inflection points that necessitate a migration (Why do startups move from neocloud to hyperscaler?): Scalability and performance needs, Compliance and security requirements, Cost efficiency at scale, Customer requirement / GTM opportunities.</li>
+</ul></td>
+</tr><tr>
+  <td><a href="https://microsoft-my.sharepoint.com/:p:/p/anfulcer/cQo3kW9FxUIcT5UuMx8-JytWEgUCE00RX4RXvYQ5hp-JtUtIzQ">AITK Foundry Customer Feedback</a></td>
+  <td>Annemarie Fulcer</td>
+  <td class="summary">Agent Builder emerged as the highest-value feature and primary reason developers use the extension, but evaluation and tracing -- critical to the iterative build-test-refine loop -- are buried under Monitor instead of Build, breaking the workflow. Quick wins: re-align extension navigation to match the five-stage development lifecycle (Model Selection → Prototype → POC Validation → Deploy → Monitor), add file/CSV attachment parity with Foundry portal, and surface collaboration support for agent creation.</td>
+</tr><tr>
+  <td><a href="https://microsoft-my.sharepoint.com/:w:/p/anfulcer/cQoviVxBKUg7QohaVVDxcyjSEgUCCPMqUwfd6DW0gOhpTbzsug">IA Survey Think Aloud Updated April 1</a></td>
+  <td>Annemarie Fulcer</td>
+  <td class="summary">AML custom code/model training capabilities ARE going to be in Foundry. Signals were proactively captured via survey, then validated with limited customers in live sessions given constraints.<br>
+<strong>Findings on Foundry IA for this scenario:</strong><br>
+<ul style="margin:4px 0;padding-left:20px;">
+<li>Build as a strong, intent driven entry point</li>
+<li>The necessity of preserving train for full control workflows</li>
+<li>The importance of fine tune vs train as task-dependent, not interchangeable</li>
+<li>The functional preference toward intent/action oriented labeling.</li>
+</ul></td>
+</tr><tr>
+  <td><a href="https://microsoft-my.sharepoint.com/:p:/p/v-hwelliver/cQoTLwMua50gRq3GnjFfQ8bAEgUD96zRwarTXIZX6-h2knv7Ag https://microsoft-my.sharepoint.com/:p:/p/v-hwelliver/cQo3of_5EU_gRZWaujs1GNfHEgUDb7sZG9rvgHVEI8Ye4emneA">Dev Workflow &amp; Startup Cloud Deployment - Pilot 2</a></td>
+  <td>Taryn Bipat, Haley Welliver (RYLEM LLC)</td>
+  <td class="summary"><strong>Pilot Study 1 (Pro-Devs in enterprise or larger startups)</strong><br>
+<ul style="margin:4px 0;padding-left:20px;">
+<li><strong>AI is trusted for crafting code, not shipping it</strong> - Enterprise pro-devs actively use AI for code generation, research, and troubleshooting, but draw a firm boundary at production deployment. Automation without human review is seen as a liability.</li>
+<li><strong>Human-in-the-loop governance is non-negotiable</strong> - Developers fear audit failures and personal accountability if AI makes unchecked changes in production.</li>
+<li><strong>Deployment pain points: Visibility and Validation</strong> - The biggest time sink is not running pipelines, but understanding what failed, where, and why across fragmented tools (CDK, Terraform, Spinnaker, AWS Console, logs).</li>
+<li><strong>Trust in AI is driven by transparency and granular control</strong> - Developers want AI outputs that are explainable, incremental, and reviewable. Including source links, diffs, and per-command approvals. Large changes dramatically reduce trust.</li>
+</ul>
+<strong>Pilot Study 2 (Pro-Devs or hobbyists in smaller, fast-paced startup cultures)</strong><br>
+<ul style="margin:4px 0;padding-left:20px;">
+<li><strong>Lightweight platforms win because they reduce cognitive load</strong> - Platforms like Vercel and Netlify succeed by offering faster previews, opinionated defaults, and transparent pricing — while hyperscalers feel powerful but overwhelming.</li>
+<li><strong>Pro-devs want automated deployments</strong> ...but need the ability to review, approve, and manually control production-impacting changes when necessary.</li>
+<li><strong>Cost &amp; security are gating factors to AI-assisted deployments</strong> - Unexpected billing, pricing volatility, and required credit cards are major deterrents (even when tools are technically a better option.) Participant hesitation in having AI handle API keys and .env files.</li>
+</ul>
+<strong>Potential UI ideas for an AI-assisted deployment product</strong><br>
+<ul style="margin:4px 0;padding-left:20px;">
+<li><strong>Lightweight validation over heavyweight dashboards</strong> - A visual to-do list or deployment timeline showing completed and pending steps (some completed by dev and some completed by AI) is preferred over complex monitoring views.</li>
+<li><strong>Continuous, connected workflow</strong> - Support seamless movement between IDE, terminal, and cloud portal, avoiding context-switching while allowing deeper inspection when needed (perhaps via AI provided links)</li>
+<li><strong>Trust cues built into the interface</strong> - Use checklists, command logs, diffs, security indicators, and provenance (“AI did this” vs. “you did this”) to reinforce trust and confidence.</li>
+</ul></td>
+</tr>
+</tbody>
+</table>
+<div class="count">5 studies completed since 2026-04-09</div>
+</body>
+</html>

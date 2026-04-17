@@ -51,6 +51,13 @@ Remove `<span style="color:...">` tags, trailing page numbers (e.g., "455" at en
 ### 7. Use HTML tables for complex table cells
 The UXR studies table has multi-line cells with bullets, bold text, and paragraphs. GitHub markdown tables cannot handle this. Use HTML `<table>` tags for complex tables. Simple tables (like the Creative work table) can use standard markdown table syntax.
 
+### 8. Hide the `/friday minutes` slash command trigger
+The GitHub Discussion requires the post to start with `/friday minutes` for the submit button to work. Hide this from readers by wrapping it in an HTML comment as the very first line of the output:
+```
+<!-- /friday minutes -->
+```
+This ensures the bot/workflow trigger is present in the raw comment body but invisible to readers.
+
 ## Workflow
 
 ### Step 1: Extract verbatim content
@@ -97,7 +104,8 @@ workiq-ask_work_iq(
 
 Using all the extracted information, build the markdown file:
 
-1. **Title** as `# heading`, date as bold text (no labels like "L1:")
+1. **Hidden trigger**: `<!-- /friday minutes -->` as the very first line
+   2. **Title** as `# heading`, date as bold text (no labels like "L1:")
 2. **UXR studies table** as HTML `<table>` with:
    - Study column: `[Study Title Display Text](URL)` on one line, researcher name on next line
    - Key Learnings column: verbatim text with correct bullet (`- `) vs paragraph formatting
@@ -129,6 +137,8 @@ After building, verify:
 The Friday Minutes typically follows this structure:
 
 ```
+<!-- /friday minutes -->
+
 # Friday Minutes: CoreAI Design and Research
 <date>
 
@@ -159,3 +169,4 @@ The Friday Minutes typically follows this structure:
 | Labels like "L1:" appear in output | Strip all `Ln:` prefixes |
 | Markdown tables break with multi-line cells | Use HTML `<table>` for complex cells |
 | Smart quotes or special chars get mangled | Preserve Unicode as-is |
+| Submit button grayed out in GitHub Discussions | Post must start with `/friday minutes` — hide it in `<!-- -->` HTML comment |

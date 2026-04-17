@@ -414,16 +414,57 @@ def html_escape(text):
     return str(text).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
 
 
-def output_html(items, closed_after=None, summaries=None):
+def markdown_to_safe_html(text):
+    """Convert simple GitHub markdown to HTML, safely.
+
+    Escapes all HTML first, then transforms only known-safe patterns:
+    **bold**, - bullet items, and line breaks.
+    """
+    if not text:
+        return ""
+    import re as _re
+    # Escape first for safety
+    escaped = html_escape(text)
+    # Bold: **text** → <strong>text</strong>
+    escaped = _re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', escaped)
+    # Process lines for bullet lists
+    lines = escaped.split('\n')
+    result_lines = []
+    in_list = False
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith('- ') or stripped.startswith('• '):
+            if not in_list:
+                result_lines.append('<ul style="margin:4px 0;padding-left:20px;">')
+                in_list = True
+            content = stripped[2:] if stripped.startswith('- ') else stripped[2:]
+            result_lines.append(f'<li>{content}</li>')
+        else:
+            if in_list:
+                result_lines.append('</ul>')
+                in_list = False
+            if stripped:
+                result_lines.append(stripped + '<br>')
+    if in_list:
+        result_lines.append('</ul>')
+    return '\n'.join(result_lines)
+
+
+def output_html(items, closed_after=None, summaries=None, key_learnings=None):
     """Generate an HTML page with a styled table of completed studies.
 
     Args:
         items: List of project items
         closed_after: Date string for subtitle
         summaries: Optional dict mapping issue URL to summary text
+        key_learnings: Optional dict mapping issue URL to key learnings text (verbatim from closing comments)
     """
     if summaries is None:
         summaries = {}
+    if key_learnings is None:
+        key_learnings = {}
+
+    has_any_learnings = any(key_learnings.get(item.get("_url", "")) for item in items)
 
     date_label = closed_after or "recently"
 
@@ -462,12 +503,18 @@ def output_html(items, closed_after=None, summaries=None):
 
         summary_cell = f'<td class="summary">{summary}</td>' if summary else '<td class="summary"></td>'
 
+        # Key learnings column (verbatim from closing comment, rendered as safe HTML)
+        kl_text = key_learnings.get(issue_url, "")
+        kl_html = markdown_to_safe_html(kl_text) if kl_text else ""
+        kl_cell = f'<td class="key-learnings">{kl_html}</td>' if has_any_learnings else ""
+
         rows.append(f"""<tr>
   <td>{study_cell}</td>
   <td>{researcher}</td>
   <td>{closed}</td>
   <td>{report_cell}</td>
   {summary_cell}
+  {kl_cell}
 </tr>""")
 
     html = f"""<!DOCTYPE html>
@@ -484,6 +531,9 @@ def output_html(items, closed_after=None, summaries=None):
   th {{ background: #24292f; color: #fff; text-align: left; padding: 10px 14px; font-size: 0.85rem; }}
   td {{ padding: 10px 14px; border-bottom: 1px solid #d0d7de; font-size: 0.85rem; vertical-align: top; }}
   .summary {{ max-width: 400px; color: #1f2328; font-size: 0.8rem; line-height: 1.4; }}
+  .key-learnings {{ max-width: 500px; color: #1f2328; font-size: 0.8rem; line-height: 1.4; }}
+  .key-learnings ul {{ margin: 4px 0; padding-left: 20px; }}
+  .key-learnings li {{ margin-bottom: 2px; }}
   tr:last-child td {{ border-bottom: none; }}
   tr:hover td {{ background: #f0f3f6; }}
   a {{ color: #0969da; text-decoration: none; }}
@@ -497,7 +547,7 @@ def output_html(items, closed_after=None, summaries=None):
 <div class="subtitle">Closed-Completed since {html_escape(date_label)} &mdash; from <a href="https://github.com/orgs/coreai-microsoft/projects/40/views/1">UXR Team Projects</a></div>
 <table>
 <thead>
-<tr><th>Study</th><th>Researcher</th><th>Closed</th><th>Report</th><th>Summary</th></tr>
+<tr><th>Study</th><th>Researcher</th><th>Closed</th><th>Report</th><th>Summary</th>{"<th>Key Learnings</th>" if has_any_learnings else ""}</tr>
 </thead>
 <tbody>
 {"".join(rows)}
@@ -509,14 +559,26 @@ def output_html(items, closed_after=None, summaries=None):
     print(html)
 
 
-def output_html_word(items, closed_after=None, summaries=None):
-    """Generate a Word-friendly HTML table: Researcher, Study (linked to report), Summary.
+def output_html_word(items, closed_after=None, summaries=None, key_learnings=None, report_titles=None, report_links=None):
+    """Generate a Word-friendly HTML table: Study (linked to report), Researcher, Key Learnings / Summary.
 
     No Closed or Report columns. Solid borders for clean copy-paste into Word.
-    Study text uses the study title but links to the report URL instead of the issue URL.
+    Study text uses the report document title (if available) or the GitHub issue title,
+    linked to the report URL (or issue URL if no report). report_links can override
+    the link URL for studies whose report URL isn't on the project board.
+    If key learnings exist for a study, they replace the summary in the last column.
     """
     if summaries is None:
         summaries = {}
+    if key_learnings is None:
+        key_learnings = {}
+    if report_titles is None:
+        report_titles = {}
+    if report_links is None:
+        report_links = {}
+
+    has_any_learnings = any(key_learnings.get(item.get("_url", "")) for item in items)
+    last_col_header = "Key Learnings / Summary" if has_any_learnings else "Summary"
 
     date_label = closed_after or "recently"
 
@@ -526,18 +588,27 @@ def output_html_word(items, closed_after=None, summaries=None):
         title = html_escape(item.get("Title", ""))
         report_url = item.get("Report URL", "")
         issue_url = item.get("_url", "")
-        summary = html_escape(summaries.get(issue_url, ""))
+        summary = summaries.get(issue_url, "")
 
-        # Link study title to report URL; fall back to issue URL if no report
-        link_url = report_url if report_url else issue_url
-        study_cell = f'<a href="{html_escape(link_url)}">{title}</a>' if link_url else title
+        # Use report document title if available, otherwise GitHub issue title
+        display_title = html_escape(report_titles.get(issue_url, "")) or title
 
-        summary_cell = f'<td class="summary">{summary}</td>' if summary else '<td class="summary"></td>'
+        # Link study title to report URL; report_links override, then board Report URL, then issue URL
+        link_url = report_links.get(issue_url, "") or report_url or issue_url
+        study_cell = f'<a href="{html_escape(link_url)}">{display_title}</a>' if link_url else display_title
+
+        # Use key learnings (rendered as HTML) if available, otherwise use summary
+        kl_text = key_learnings.get(issue_url, "")
+        if kl_text:
+            display_text = markdown_to_safe_html(kl_text)
+        else:
+            display_text = html_escape(summary)
+        last_cell = f'<td class="summary">{display_text}</td>' if display_text else '<td class="summary"></td>'
 
         rows.append(f"""<tr>
   <td>{study_cell}</td>
   <td>{researcher}</td>
-  {summary_cell}
+  {last_cell}
 </tr>""")
 
     html = f"""<!DOCTYPE html>
@@ -563,7 +634,7 @@ def output_html_word(items, closed_after=None, summaries=None):
 <div class="subtitle">Closed-Completed since {html_escape(date_label)} &mdash; from <a href="https://github.com/orgs/coreai-microsoft/projects/40/views/1">UXR Team Projects</a></div>
 <table>
 <thead>
-<tr><th>Study</th><th>Researcher</th><th>Summary</th></tr>
+<tr><th>Study</th><th>Researcher</th><th>{last_col_header}</th></tr>
 </thead>
 <tbody>
 {"".join(rows)}
@@ -593,6 +664,9 @@ def main():
     parser.add_argument("--report-urls", action="store_true", help="Show report URLs only")
     parser.add_argument("--output", help="Write output to file instead of stdout")
     parser.add_argument("--summaries-json", help="JSON file mapping issue URLs to summary text (for HTML format)")
+    parser.add_argument("--key-learnings-json", help="JSON file mapping issue URLs to key learnings text from closing comments (for HTML format)")
+    parser.add_argument("--report-titles-json", help="JSON file mapping issue URLs to report document titles (for html-word format)")
+    parser.add_argument("--report-links-json", help="JSON file mapping issue URLs to override report link URLs (for html-word format, when Report URL is missing from the board)")
 
     args = parser.parse_args()
 
@@ -616,6 +690,33 @@ def main():
         except (FileNotFoundError, json.JSONDecodeError) as e:
             print(f"Warning: Could not load summaries from {args.summaries_json}: {e}", file=sys.stderr)
 
+    # Load key learnings JSON if provided
+    key_learnings = {}
+    if args.key_learnings_json:
+        try:
+            with open(args.key_learnings_json, "r", encoding="utf-8") as f:
+                key_learnings = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            print(f"Warning: Could not load key learnings from {args.key_learnings_json}: {e}", file=sys.stderr)
+
+    # Load report titles JSON if provided
+    report_titles = {}
+    if args.report_titles_json:
+        try:
+            with open(args.report_titles_json, "r", encoding="utf-8") as f:
+                report_titles = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            print(f"Warning: Could not load report titles from {args.report_titles_json}: {e}", file=sys.stderr)
+
+    # Load report links JSON if provided
+    report_links = {}
+    if args.report_links_json:
+        try:
+            with open(args.report_links_json, "r", encoding="utf-8") as f:
+                report_links = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            print(f"Warning: Could not load report links from {args.report_links_json}: {e}", file=sys.stderr)
+
     # Redirect stdout to file if --output specified
     original_stdout = sys.stdout
     if args.output:
@@ -630,9 +731,9 @@ def main():
         fields = DEFAULT_FIELDS
 
     if args.format == "html":
-        output_html(filtered, closed_after=args.closed_after, summaries=summaries)
+        output_html(filtered, closed_after=args.closed_after, summaries=summaries, key_learnings=key_learnings)
     elif args.format == "html-word":
-        output_html_word(filtered, closed_after=args.closed_after, summaries=summaries)
+        output_html_word(filtered, closed_after=args.closed_after, summaries=summaries, key_learnings=key_learnings, report_titles=report_titles, report_links=report_links)
     elif args.format == "json":
         output_json(filtered, fields)
     elif args.format == "csv":
