@@ -560,12 +560,10 @@ def output_html(items, closed_after=None, summaries=None, key_learnings=None):
 
 
 def output_html_word(items, closed_after=None, summaries=None, key_learnings=None, report_titles=None, report_links=None):
-    """Generate a Word-friendly HTML table: Study (linked to report), Researcher, Key Learnings / Summary.
+    """Generate a Word-friendly HTML table: Study (with researcher below), Key Learnings / Summary.
 
-    No Closed or Report columns. Solid borders for clean copy-paste into Word.
-    Study text uses the report document title (if available) or the GitHub issue title,
-    linked to the report URL (or issue URL if no report). report_links can override
-    the link URL for studies whose report URL isn't on the project board.
+    No Closed, Report, or separate Researcher columns. Solid borders for clean copy-paste into Word.
+    Study cell contains the title (linked to report URL) with researcher name below in smaller gray text.
     If key learnings exist for a study, they replace the summary in the last column.
     """
     if summaries is None:
@@ -595,7 +593,10 @@ def output_html_word(items, closed_after=None, summaries=None, key_learnings=Non
 
         # Link study title to report URL; report_links override, then board Report URL, then issue URL
         link_url = report_links.get(issue_url, "") or report_url or issue_url
-        study_cell = f'<a href="{html_escape(link_url)}">{display_title}</a>' if link_url else display_title
+        study_link = f'<a href="{html_escape(link_url)}">{display_title}</a>' if link_url else display_title
+        # Combine study title and researcher in one cell
+        researcher_line = f'<br><span style="color:#656d76; font-size:10pt;">{researcher}</span>' if researcher else ''
+        study_cell = f'{study_link}{researcher_line}'
 
         # Use key learnings (rendered as HTML) if available, otherwise use summary
         kl_text = key_learnings.get(issue_url, "")
@@ -607,7 +608,6 @@ def output_html_word(items, closed_after=None, summaries=None, key_learnings=Non
 
         rows.append(f"""<tr>
   <td>{study_cell}</td>
-  <td>{researcher}</td>
   {last_cell}
 </tr>""")
 
@@ -634,7 +634,7 @@ def output_html_word(items, closed_after=None, summaries=None, key_learnings=Non
 <div class="subtitle">Closed-Completed since {html_escape(date_label)} &mdash; from <a href="https://github.com/orgs/coreai-microsoft/projects/40/views/1">UXR Team Projects</a></div>
 <table>
 <thead>
-<tr><th>Study</th><th>Researcher</th><th>{last_col_header}</th></tr>
+<tr><th>Study</th><th>{last_col_header}</th></tr>
 </thead>
 <tbody>
 {"".join(rows)}

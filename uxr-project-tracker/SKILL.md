@@ -231,14 +231,14 @@ The Key Learnings column only appears if at least one study has key learnings. T
 ```bash
 python scripts/query_project.py --status "Closed-Completed" --closed-after DATE --format html-word --summaries-json summaries.json --key-learnings-json key_learnings.json --report-titles-json report_titles.json --report-links-json report_links.json --output completed-studies.html
 ```
-This produces a table with columns: Study (linked to report URL) | Researcher | Key Learnings / Summary
+This produces a table with columns: Study | Key Learnings / Summary
+- **Study cell** contains the study name (linked to report URL) with the researcher name below it in smaller gray text. No separate Researcher column.
 - **Study names** use the report document title (from `report_titles.json`) instead of the GitHub issue title when available. Extract titles from the SharePoint/HITS document header when scraping.
 - **Study links** use the board's Report URL field. If a study has no Report URL on the board but does have a report, add its URL to `report_links.json` to override the link.
 - If a study has key learnings, they **replace** the summary in the last column
 - If no key learnings, the AI-written summary is used
 - Column header shows "Key Learnings / Summary" when any study has key learnings
-- Study column comes **before** Researcher
-- No Closed or Report columns
+- No Closed, Report, or separate Researcher columns
 - Solid 1px borders on all cells for clean Word paste
 - Uses `font-family: 'Segoe UI', Calibri, Arial, sans-serif` and `font-size: 11pt` / `10pt`
 
